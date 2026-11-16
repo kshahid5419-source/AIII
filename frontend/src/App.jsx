@@ -29,10 +29,12 @@ import {
   ShieldCheck,
   AlertTriangle,
   Check,
-  Copy
+  Copy,
+  Scale
 } from 'lucide-react'
 
 import { getJSON, postJSON } from './api'
+import { LAWS } from './lawsData'
 
 // Default location
 const CENTER = {
@@ -173,6 +175,14 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [modal, setModal] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Laws filter state
+  const [lawFilter, setLawFilter] = useState('all')
+
+  const filteredLaws = useMemo(() => {
+    if (lawFilter === 'all') return LAWS
+    return LAWS.filter(law => law.jurisdiction === lawFilter)
+  }, [lawFilter])
 
   // Complaint tracking states
   const [trackingCode, setTrackingCode] = useState('')
@@ -484,7 +494,7 @@ export default function App() {
           <a href="#hotspots">Hotspots</a>
           <a href="#trends">Analytics</a>
           <a href="#reports">Reports</a>
-          <a href="#track">Track complaint</a>
+          <a href="#laws">Laws &amp; Policy</a>
         </nav>
 
         <button className="button" onClick={() => setModal(true)}>
@@ -1206,6 +1216,71 @@ export default function App() {
                 </article>
               ))
             )}
+          </div>
+        </section>
+
+        {/* LEGAL & POLICY FRAMEWORK */}
+        <section className="section" id="laws">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">06 / LEGAL &amp; POLICY FRAMEWORK</div>
+              <h2>Environmental &amp; climate change laws</h2>
+              <p>
+                Key Pakistani statutes and international treaties governing air
+                quality, emissions, and climate resilience.
+              </p>
+            </div>
+
+            <div className="geo-matches">
+              <button
+                type="button"
+                className={lawFilter === 'all' ? 'active-pill' : ''}
+                onClick={() => setLawFilter('all')}
+              >
+                All ({LAWS.length})
+              </button>
+              <button
+                type="button"
+                className={lawFilter === 'pakistan' ? 'active-pill' : ''}
+                onClick={() => setLawFilter('pakistan')}
+              >
+                Pakistan
+              </button>
+              <button
+                type="button"
+                className={lawFilter === 'international' ? 'active-pill' : ''}
+                onClick={() => setLawFilter('international')}
+              >
+                International
+              </button>
+            </div>
+          </div>
+
+          <div className="laws-grid">
+            {filteredLaws.map(law => (
+              <article className="law-card" key={law.id}>
+                <div className="law-head">
+                  <span className={`law-badge ${law.jurisdiction}`}>
+                    {law.badge}
+                  </span>
+                  <span className="law-year">{law.year}</span>
+                </div>
+
+                <h3>{law.title}</h3>
+                <p className="law-summary">{law.summary}</p>
+
+                <ul className="law-points">
+                  {law.keyPoints.map((point, idx) => (
+                    <li key={idx}>{point}</li>
+                  ))}
+                </ul>
+
+                <div className="law-relevance">
+                  <Scale size={14} />
+                  <span>{law.relevance}</span>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
